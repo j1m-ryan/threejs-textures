@@ -6,6 +6,34 @@ import GUI from "lil-gui";
 import _fullscreen from "./utils/fullscreen";
 import gsap from "gsap";
 
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onStart = () => {
+  console.log("started loading");
+};
+loadingManager.onProgress = (url, loaded, total) => {
+  console.log(loaded / total, "loaded");
+};
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const colorTexture = textureLoader.load("../static/textures/minecraft.png");
+const alphaTexture = textureLoader.load("../static/textures/door/alpha.jpg");
+const heightTexture = textureLoader.load("../static/textures/door/height.jpg");
+
+const normalTexture = textureLoader.load("../static/textures/door/normal.jpg");
+
+const ambientOcclusionTexture = textureLoader.load(
+  "../static/textures/door/ambientOcclusion.jpg"
+);
+const metalnessTexture = textureLoader.load(
+  "../static/textures/door/metalness.jpg"
+);
+const rouchnessTexture = textureLoader.load(
+  "../static/textures/door/roughness.jpg"
+);
+
+colorTexture.colorSpace = THREE.SRGBColorSpace;
+colorTexture.magFilter = THREE.NearestFilter;
+
 const gui = new GUI({
   title: "ThreeJS Starter Bun",
 });
@@ -14,8 +42,7 @@ const cubeFolder = gui.addFolder("cube");
 const cameraFolder = gui.addFolder("camera");
 
 const cubeProperties = {
-  color: "#ff0000",
-  subdivisions: 20,
+  subdivisions: 1,
   animation: () => {},
 };
 
@@ -43,14 +70,10 @@ function main() {
   controls.enableDamping = true;
 
   const material = new THREE.MeshPhongMaterial({
-    color: cubeProperties.color,
+    map: colorTexture,
   });
 
   cubeFolder.add(material, "wireframe");
-
-  cubeFolder.addColor(cubeProperties, "color").onChange(() => {
-    material.color.set(cubeProperties.color);
-  });
 
   const geometry = new THREE.BoxGeometry(
     1,
